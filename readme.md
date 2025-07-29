@@ -4,11 +4,11 @@ A full-stack salon booking application that connects customers with salon servic
 
 ## Demo Video
 
-[Normal User Experience](/home/ajin/Web Development/eclipeWorkspace/Projects/Salon Booking Project/Screencast from 2025-07-29 19-48-53 (online-video-cutter.com).mp4)
+[![Normal User Experience](https://github.com/user-attachments/assets/76c1b495-6cb1-40b0-b383-408e85c041b9)
 
-[Salon Owner Experience](/home/ajin/Web Development/eclipeWorkspace/Projects/Salon Booking Project/Screencast from 2025-07-29 20-03-11 (online-video-cutter.com).mp4)
+[![Salon Owner Experience](https://github.com/user-attachments/assets/e731cfb1-0316-4d12-9197-91cb6824473f)
 
-[Registering New Salon(Become a partner)](/home/ajin/Web Development/eclipeWorkspace/Projects/Salon Booking Project/Screencast from 2025-07-29 20-10-01 (online-video-cutter.com).mp4)
+[![Registering New Salon(Become a partner)](https://github.com/user-attachments/assets/25494485-9496-4e90-92d5-afe3ac54d32e)
 
 ## 🌟 Features
 
