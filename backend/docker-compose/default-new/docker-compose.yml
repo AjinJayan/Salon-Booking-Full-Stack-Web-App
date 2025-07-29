@@ -1,0 +1,470 @@
+services:
+  keycloak:
+    image: "quay.io/keycloak/keycloak:26.3.2"
+    ports:
+      - 8080:8080
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    command:
+      - start-dev
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl -f http://localhost:8080/realms/master/protocol/openid-connect/certs || exit 1",
+        ]
+      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+      start_period: 30s # Optional: give the application time to start up
+    container_name: keycloak
+    networks:
+      - ajinjayan # can be any name
+
+  rabbitmq:
+    image: "rabbitmq:4-management"
+    hostname: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics -q ping"]
+      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+      start_period: 30s # Optional: give the application time to start up
+    # container_name: rabbitmq
+    networks:
+      - ajinjayan # can be any name
+
+  mysqldb:
+    image: mysql
+    ports:
+      - 3301:3306
+    healthcheck:
+      test:
+        ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1"]
+      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+      start_period: 30s # Optional: give the application time to start up
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    container_name: mysqldb
+    networks:
+      - ajinjayan
+    volumes:
+      - ./init-multiple-db.sql:/docker-entrypoint-initdb.d/init-multiple-db.sql
+
+  # userdb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3301:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+  #     timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+  #     retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+  #     start_period: 30s # Optional: give the application time to start up
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: user_service_salon_booking # this will create a database named user_service_salon_booking soon as the container is up
+  #   container_name: userdb
+  #   networks:
+  #     - ajinjayan # can be any name
+
+  # bookingdb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3311:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: booking_service_salon_booking
+  #   container_name: bookingdb
+  #   networks:
+  #     - ajinjayan
+
+  # notificationdb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3333:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: notification_service_salon_booking
+  #   container_name: notificationdb
+  #   networks:
+  #     - ajinjayan
+
+  # reviewdb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3334:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: review_service_salon_booking
+  #   container_name: reviewdb
+  #   networks:
+  #     - ajinjayan
+
+  # salondb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3302:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: salon_service_salon_booking
+  #   container_name: salondb
+  #   networks:
+  #     - ajinjayan
+
+  # paymentdb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3326:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: payment_service_salon_booking
+  #   container_name: paymentdb
+  #   networks:
+  #     - ajinjayan
+
+  # categorydb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3325:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: category_service_salon_booking
+  #   container_name: categorydb
+  #   networks:
+  #     - ajinjayan
+
+  # serviceofferingdb:
+  #   image: "mysql"
+  #   ports:
+  #     - 3331:3306
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: service_offering_service_salon_booking
+  #   container_name: serviceofferingdb
+  #   networks:
+  #     - ajinjayan
+
+  eurekaserver:
+    image: "ajinjayan/salon-eureka-server:v1"
+    ports:
+      - 8761:8761
+    healthcheck:
+      test: ["CMD", "curl -f eurekaserver:8761/actuator/health || exit 1"] # eureka server should be up before all other microservices become up
+      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+      start_period: 30s # Optional: give the application time to start up
+    container_name: eureka-server
+
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - ajinjayan # can be any name
+
+  userservice:
+    image: "ajinjayan/salon-user-service:v1"
+    ports:
+      - 8081:8081
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f userservice:8081/actuator/health || exit 1"] # eureka server should be up before all other microservices become up
+      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+      start_period: 30s # Optional: give the application time to start up
+    container_name: user-service
+    depends_on:
+      # this condition make sure that the userservice will start onky after the userdb starts
+      mysqldb:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    environment:
+      # Spring Boot Environment Variables: Spring Boot automatically converts environment variables to application properties by:
+      # Converting to lowercase
+      # Replacing underscores with dots
+      # Removing the SPRING_ prefix      SPRING_APPLICATION_NAME: user-service
+      # SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/user_service_salon_booking
+      # SPRING_DATASOURCE_USERNAME: root
+      # SPRING_DATASOURCE_PASSWORD: root
+      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_APPLICATION_NAME: user-service
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/user_service_salon_booking
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      EUREKA_CLIENT_REGISTERWITHEUREKA: "true"
+      EUREKA_CLIENT_FETCHREGISTRY: "true"
+      EUREKA_INSTANCE_PREFERIPADDRESS: "true"
+
+      #eureka service things alos there in the video but, i am not including as client will register itself with eureka server with the default paramterss
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - ajinjayan # can be any name
+
+  # bookingservice:
+  #   image: "ajinjayan/salon-booking-service:v1"
+  #   ports:
+  #     - 8085:8085
+  #   healthcheck:
+  #     test:
+  #       ["CMD-SHELL", "curl -f bookingservice:8085/actuator/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: booking-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/booking_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  # salonservice:
+  #   image: "ajinjayan/salon-salon-service:v1"
+  #   ports:
+  #     - 8082:8082
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f salonservice:8082/actuator/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: salon-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/salon_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  # paymentservice:
+  #   image: "ajinjayan/salon-payment-service:v1"
+  #   ports:
+  #     - 8086:8086
+  #   healthcheck:
+  #     test:
+  #       ["CMD-SHELL", "curl -f paymentservice:8086/actuator/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: payment-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/payment_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  # categoryservice:
+  #   image: "ajinjayan/salon-category-service:v1"
+  #   ports:
+  #     - 8083:8083
+  #   healthcheck:
+  #     test:
+  #       ["CMD-SHELL", "curl -f categoryservice:8083/actuator/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: category-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/category_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  # notificationservice:
+  #   image: "ajinjayan/salon-notification-service:v1"
+  #   ports:
+  #     - 8089:8089
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD-SHELL",
+  #         "curl -f notificationservice:8089/actuator/health || exit 1",
+  #       ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: notification-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/notification_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  # reviewservice:
+  #   image: "ajinjayan/salon-review-service:v1"
+  #   ports:
+  #     - 8090:8090
+  #   healthcheck:
+  #     test:
+  #       ["CMD-SHELL", "curl -f reviewservice:8090/actuator/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: review-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/review_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  # serviceofferingservice:
+  #   image: "ajinjayan/salon-service-offering-service:v1"
+  #   ports:
+  #     - 8084:8084
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD-SHELL",
+  #         "curl -f serviceofferingservice:8084/actuator/health || exit 1",
+  #       ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 30s
+  #   container_name: service-offering-service
+  #   depends_on:
+  #     mysqldb:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/service_offering_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan
+
+  gateway-server:
+    image: "ajinjayan/salon-gateway-server:v1"
+    ports:
+      - 8087:8087
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -f gateway-server:8087/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    container_name: gateway-server
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    environment:
+      SPRING_APPLICATION_NAME: "gateway-server"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+    networks:
+      - ajinjayan
+
+networks:
+  ajinjayan:
+    driver: "bridge"

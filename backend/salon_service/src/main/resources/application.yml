@@ -1,0 +1,12 @@
+server.port: 8082
+spring:
+    application:
+        name: salon-service
+    datasource:
+        url: jdbc:mysql://localhost:3306/salon_service_salon_booking?createDatabaseIfNotExist=true
+        username: root
+        password: password
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:           
+            ddl-auto: update

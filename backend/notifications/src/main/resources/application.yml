@@ -1,0 +1,17 @@
+server.port: 8088
+spring:
+    application:
+        name: notification-service
+    datasource:
+        url: jdbc:mysql://localhost:3306/notifications_salon_booking?createDatabaseIfNotExist=true
+        username: root
+        password: password
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:           
+            ddl-auto: update
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest   

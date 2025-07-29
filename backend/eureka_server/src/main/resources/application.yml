@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: eureka_server
+
+server:
+  port: 8761
+  
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false # we don't want to register this eureka server with itself, instead we want other services to register with it 
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/  
