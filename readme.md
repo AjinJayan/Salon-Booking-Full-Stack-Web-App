@@ -147,10 +147,6 @@ docker-compose -f docker-compose/default/docker-compose.yml up -d
 └── docker-compose/          # Docker configuration
 ```
 
-## 🔒 Environment Variables
-
-Create `.env` files in each service directory with the required configurations. Refer to `.env.example` in each service for reference.
-
 ## 🤝 Contributing
 
 1. Fork the project
