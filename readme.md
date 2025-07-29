@@ -2,6 +2,14 @@
 
 A full-stack salon booking application that connects customers with salon services, featuring a modern **React**-based frontend and a microservices-based backend architecture.
 
+## Demo Video
+
+[Normal User Experience](/home/ajin/Web Development/eclipeWorkspace/Projects/Salon Booking Project/Screencast from 2025-07-29 19-48-53 (online-video-cutter.com).mp4)
+
+[Salon Owner Experience](/home/ajin/Web Development/eclipeWorkspace/Projects/Salon Booking Project/Screencast from 2025-07-29 20-03-11 (online-video-cutter.com).mp4)
+
+[Registering New Salon(Become a partner)](/home/ajin/Web Development/eclipeWorkspace/Projects/Salon Booking Project/Screencast from 2025-07-29 20-10-01 (online-video-cutter.com).mp4)
+
 ## 🌟 Features
 
 ### Frontend

@@ -197,63 +197,67 @@ services:
     image: "ajinjayan/salon-eureka-server:v1"
     ports:
       - 8761:8761
-    healthcheck:
-      test: ["CMD", "curl -f eurekaserver:8761/actuator/health || exit 1"] # eureka server should be up before all other microservices become up
-      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
-      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
-      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
-      start_period: 30s # Optional: give the application time to start up
-    container_name: eureka-server
-
-    deploy:
-      resources:
-        limits:
-          memory: 700m
-    networks:
-      - ajinjayan # can be any name
-
-  userservice:
-    image: "ajinjayan/salon-user-service:v1"
-    ports:
-      - 8081:8081
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f userservice:8081/actuator/health || exit 1"] # eureka server should be up before all other microservices become up
-      interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
-      timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
-      retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
-      start_period: 30s # Optional: give the application time to start up
-    container_name: user-service
-    depends_on:
-      # this condition make sure that the userservice will start onky after the userdb starts
-      mysqldb:
-        condition: service_healthy
-      eurekaserver:
-        condition: service_healthy
+    # healthcheck:
+    #   test: ["CMD", "curl -f eurekaserver:8761/actuator/health || exit 1"] # eureka server should be up before all other microservices become up
+    #   interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+    #   timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+    #   retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+    #   start_period: 30s # Optional: give the application time to start up
+    container_name: eurekaserver
     environment:
-      # Spring Boot Environment Variables: Spring Boot automatically converts environment variables to application properties by:
-      # Converting to lowercase
-      # Replacing underscores with dots
-      # Removing the SPRING_ prefix      SPRING_APPLICATION_NAME: user-service
-      # SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/user_service_salon_booking
-      # SPRING_DATASOURCE_USERNAME: root
-      # SPRING_DATASOURCE_PASSWORD: root
-      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
-      SPRING_APPLICATION_NAME: user-service
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/user_service_salon_booking
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_INSTANCE_HOSTNAME: eurekaserver
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
-      EUREKA_CLIENT_REGISTERWITHEUREKA: "true"
-      EUREKA_CLIENT_FETCHREGISTRY: "true"
-      EUREKA_INSTANCE_PREFERIPADDRESS: "true"
-
-      #eureka service things alos there in the video but, i am not including as client will register itself with eureka server with the default paramterss
+      EUREKA_CLIENT_REGISTERWITHEUREKA: "false"
+      EUREKA_CLIENT_FETCHREGISTRY: "false"
     deploy:
       resources:
         limits:
           memory: 700m
     networks:
       - ajinjayan # can be any name
+
+  # userservice:
+  #   image: "ajinjayan/salon-user-service:v1"
+  #   ports:
+  #     - 8081:8081
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f userservice:8081/actuator/health || exit 1"] # eureka server should be up before all other microservices become up
+  #     interval: 10s # it will check the health of the application every 10 seconds (continious frequency)
+  #     timeout: 5s # if the application is not up within 5 seconds it will consider it as failed
+  #     retries: 5 # it will retry 5 times, After all the retries if the application is not up it will consider it as failed
+  #     start_period: 30s # Optional: give the application time to start up
+  #   container_name: user-service
+  #   depends_on:
+  #     # this condition make sure that the userservice will start onky after the userdb starts
+  #     mysqldb:
+  #       condition: service_healthy
+  #     eurekaserver:
+  #       condition: service_healthy
+  #   environment:
+  #     # Spring Boot Environment Variables: Spring Boot automatically converts environment variables to application properties by:
+  #     # Converting to lowercase
+  #     # Replacing underscores with dots
+  #     # Removing the SPRING_ prefix      SPRING_APPLICATION_NAME: user-service
+  #     # SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/user_service_salon_booking
+  #     # SPRING_DATASOURCE_USERNAME: root
+  #     # SPRING_DATASOURCE_PASSWORD: root
+  #     # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+  #     SPRING_APPLICATION_NAME: user-service
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/user_service_salon_booking
+  #     SPRING_DATASOURCE_USERNAME: root
+  #     SPRING_DATASOURCE_PASSWORD: root
+  #     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+  #     EUREKA_CLIENT_REGISTERWITHEUREKA: "true"
+  #     EUREKA_CLIENT_FETCHREGISTRY: "true"
+  #     EUREKA_INSTANCE_PREFERIPADDRESS: "true"
+
+  #     #eureka service things alos there in the video but, i am not including as client will register itself with eureka server with the default paramterss
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 700m
+  #   networks:
+  #     - ajinjayan # can be any name
 
   # bookingservice:
   #   image: "ajinjayan/salon-booking-service:v1"
@@ -454,14 +458,20 @@ services:
       retries: 5
       start_period: 30s
     container_name: gateway-server
+    # depends_on:
+    #   eurekaserver:
+    #     condition: service_healthy
     deploy:
       resources:
         limits:
           memory: 700m
     environment:
       SPRING_APPLICATION_NAME: "gateway-server"
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8761/eureka/"
+      EUREKA_CLIENT_REGISTERWITHEUREKA: "true"
+      EUREKA_CLIENT_FETCHREGISTRY: "true"
+      EUREKA_INSTANCE_PREFERIPADDRESS: "true"
     networks:
       - ajinjayan
 
